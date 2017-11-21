@@ -1,0 +1,27 @@
+---
+- name: Check docker installation
+  shell: 'docker --version'
+  register: result_docker
+  ignore_errors: True
+
+- name: Download convenience script
+  shell: curl -fsSL get.docker.com -o get-docker.sh
+  when: result_docker|failed
+
+- name: Run docker install scripts
+  shell: sh get-docker.sh
+  when: result_docker|failed
+
+- name: Check docker-compose installation
+  shell: 'docker-compose --version'
+  register: result_docker_compose
+  ignore_errors: True
+
+- name: Install docker-compose
+  shell: curl -L https://github.com/docker/compose/releases/download/1.17.0/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
+  when: result_docker_compose|failed
+
+- name: Apply permission to binary
+  shell: chmod +x /usr/local/bin/docker-compose
+  when: result_docker_compose|failed
+
